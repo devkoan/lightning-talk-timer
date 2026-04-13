@@ -31,7 +31,7 @@
 
 *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
 
-html, body { height: 100%; }
+html { height: 100%; scroll-behavior: smooth; }
 
 body {
   background: var(--bg);
@@ -545,6 +545,237 @@ body.fullscreen-mode .ring-wrap {
   width: min(480px, 85vw);
   height: min(480px, 85vw);
 }
+
+/* ── Hero strip ── */
+.hero-strip {
+  border-bottom: 1px solid var(--border);
+  padding: 1.25rem 2rem;
+  flex-shrink: 0;
+}
+
+.hero-inner {
+  max-width: 1040px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.hero-tag {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--accent);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.hero-line {
+  font-family: var(--sans);
+  font-size: 0.92rem;
+  color: var(--text2);
+  font-weight: 400;
+  line-height: 1.4;
+  margin: 0;
+  flex: 1;
+  min-width: 220px;
+}
+
+.hero-line strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.hero-link {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--text3);
+  text-decoration: none;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+
+.hero-link:hover { color: var(--accent); }
+
+@media (max-width: 780px) {
+  .hero-strip { padding: 1rem; }
+  .hero-line { font-size: 0.85rem; }
+}
+
+/* ── About section ── */
+.about {
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  padding: 3.5rem 2rem;
+  flex-shrink: 0;
+}
+
+.about-inner {
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.about-tag {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--accent);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 1.25rem;
+}
+
+.about-title {
+  font-family: var(--sans);
+  font-size: clamp(1.4rem, 3.2vw, 2rem);
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.25;
+  margin: 0 0 1.5rem;
+  max-width: 680px;
+}
+
+.about-body {
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  color: var(--text2);
+  line-height: 1.65;
+  max-width: 680px;
+  margin-bottom: 2.5rem;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.about-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--accent);
+  border-radius: 2px;
+  padding: 1.125rem 1.25rem;
+}
+
+.about-card-tag {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+}
+
+.about-card-text {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  color: var(--text2);
+  line-height: 1.55;
+}
+
+.about-cta-row {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.about-cta-meta {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--text3);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 780px) {
+  .about { padding: 2.5rem 1rem; }
+  .about-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Tools grid ── */
+.tools-grid-section {
+  border-top: 1px solid var(--border);
+  padding: 3rem 2rem;
+  flex-shrink: 0;
+}
+
+.tools-grid-inner {
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.tools-grid-tag {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--text2);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 1.25rem;
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+.tool-card {
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 1rem 1.125rem;
+  text-decoration: none;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.tool-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.tool-card.highlight {
+  background: transparent;
+  border-color: var(--border2);
+}
+
+.tool-card.highlight:hover { border-color: var(--accent); }
+
+.tool-card-name {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.45rem;
+}
+
+.tool-card-desc {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  color: var(--text2);
+  line-height: 1.5;
+}
+
+@media (max-width: 780px) {
+  .tools-grid { grid-template-columns: 1fr 1fr; }
+  .tools-grid-section { padding: 2.5rem 1rem; }
+}
+
+@media (max-width: 480px) {
+  .tools-grid { grid-template-columns: 1fr; }
+}
+
+body.fullscreen-mode .hero-strip,
+body.fullscreen-mode .about,
+body.fullscreen-mode .tools-grid-section {
+  display: none;
+}
 </style>
 </head>
 <body>
@@ -559,6 +790,15 @@ body.fullscreen-mode .ring-wrap {
     </nav>
   </div>
 </header>
+
+<!-- ── Hero strip ── -->
+<section class="hero-strip">
+  <div class="hero-inner">
+    <span class="hero-tag">// devkoan · free tool</span>
+    <h1 class="hero-line">A free <strong>lightning talk timer</strong> for developers — open it, hit start, no signup.</h1>
+    <a href="#about" class="hero-link">What is devkoan? →</a>
+  </div>
+</section>
 
 <div class="main">
 
@@ -666,6 +906,62 @@ body.fullscreen-mode .ring-wrap {
 
   </div>
 </div>
+
+<!-- ── About devkoan ── -->
+<section class="about" id="about">
+  <div class="about-inner">
+    <div class="about-tag">// what is devkoan</div>
+    <h2 class="about-title">A koan is a question with no clean answer.<br>Indie dev is full of them.</h2>
+    <p class="about-body">
+      devkoan is a newsletter and a growing collection of free tools for developers shipping things solo. No SaaS dashboard. No login. No "free tier" with a credit card on file. Just the things you actually need to build, ship, and talk about your work.
+    </p>
+
+    <div class="about-grid">
+      <div class="about-card">
+        <div class="about-card-tag">01 · Build</div>
+        <div class="about-card-text">Tools that help you make decisions: pricing, scoping, what to cut, what to keep.</div>
+      </div>
+      <div class="about-card">
+        <div class="about-card-tag">02 · Ship</div>
+        <div class="about-card-text">Generators for the stuff that's not your craft but you still have to do — privacy policies, landing copy, terms.</div>
+      </div>
+      <div class="about-card">
+        <div class="about-card-tag">03 · Talk</div>
+        <div class="about-card-text">Tools for the part most devs skip — writing about your work, presenting it, getting it in front of people. This timer included.</div>
+      </div>
+    </div>
+
+    <div class="about-cta-row">
+      <a href="https://devkoan.substack.com" class="cta-btn" target="_blank" rel="noopener">Subscribe to devkoan →</a>
+      <span class="about-cta-meta">Free · weekly-ish · unsubscribe anytime</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── More tools ── -->
+<section class="tools-grid-section">
+  <div class="tools-grid-inner">
+    <div class="tools-grid-tag">// more devkoan tools</div>
+    <div class="tools-grid">
+      <a href="https://devkoan.github.io/pricing-calculator/" class="tool-card">
+        <div class="tool-card-name">Pricing Calculator</div>
+        <div class="tool-card-desc">Find the price your indie product should actually charge.</div>
+      </a>
+      <a href="https://devkoan.github.io/revenue-estimator/" class="tool-card">
+        <div class="tool-card-name">Revenue Estimator</div>
+        <div class="tool-card-desc">Project realistic MRR from traffic, conversion, and churn.</div>
+      </a>
+      <a href="https://devkoan.github.io/privacy-policy-generator/" class="tool-card">
+        <div class="tool-card-name">Privacy Policy Generator</div>
+        <div class="tool-card-desc">Compliance copy for solo apps, without a lawyer.</div>
+      </a>
+      <a href="https://devkoan.github.io/devkoan-tools/" class="tool-card highlight">
+        <div class="tool-card-name">All tools →</div>
+        <div class="tool-card-desc">Browse the full collection.</div>
+      </a>
+    </div>
+  </div>
+</section>
 
 <footer>
   <div class="footer-links">
