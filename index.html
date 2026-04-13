@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lightning Talk Timer — Free Presentation Timer for Developers</title>
+<meta name="description" content="Free countdown timer for lightning talks and developer presentations. 5-minute and 10-minute modes with slide pacing guide. No install, no account.">
+<meta name="keywords" content="lightning talk timer, presentation timer developer, 5 minute talk timer, tech talk timer, conference presentation countdown, slide pacing guide">
+<meta property="og:title" content="Lightning Talk Timer — devkoan">
+<meta property="og:description" content="Free countdown timer for lightning talks. 5min / 10min modes with slide pacing guide. Open in browser, start talking.">
+<meta property="og:url" content="https://devkoan.github.io/lightning-talk-timer/">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #040404;
+  --surface: #0c0c0c;
+  --border:  #1a1a1a;
+  --border2: #252525;
+  --text:    #efefef;
+  --text2:   #666;
+  --text3:   #2a2a2a;
+  --accent:  #e8f000;   /* electric yellow-green */
+  --warn:    #ff6b1a;
+  --danger:  #ff2244;
+  --mono:    'JetBrains Mono', monospace;
+  --display: 'Bebas Neue', sans-serif;
+  --sans:    'DM Sans', sans-serif;
+}
+
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+
+html, body { height: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ── */
+header {
+  padding: 0.875rem 2rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.logo {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.nav-links { display: flex; gap: 1.25rem; }
+.nav-links a {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  color: var(--text3);
+  text-decoration: none;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color 0.15s;
+}
+.nav-links a:hover { color: var(--text2); }
+
+/* ── Main ── */
+.main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  max-width: 1040px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 2rem 2rem 3rem;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (max-width: 780px) {
+  .main { grid-template-columns: 1fr; padding: 1.5rem 1rem 2rem; }
+  header { padding: 0.875rem 1rem; }
+  .nav-links { display: none; }
+}
+
+/* ── Timer face ── */
+.timer-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+/* Duration picker */
+.duration-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.dur-btn {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.45rem 1.1rem;
+  border-radius: 2px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.dur-btn:hover { border-color: var(--accent); color: var(--accent); }
+.dur-btn.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+
+.custom-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--border2);
+  border-radius: 2px;
+  padding: 0 0.6rem;
+  transition: border-color 0.15s;
+}
+
+.custom-wrap:focus-within { border-color: var(--accent); }
+
+.custom-input {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  width: 32px;
+  text-align: center;
+  outline: none;
+  padding: 0.45rem 0;
+}
+
+.custom-lbl {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  color: var(--text2);
+  letter-spacing: 0.05em;
+}
+
+/* The big ring */
+.ring-wrap {
+  position: relative;
+  width: min(340px, 80vw);
+  height: min(340px, 80vw);
+  margin-bottom: 2rem;
+}
+
+.ring-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.ring-track {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 6;
+}
+
+.ring-progress {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s linear, stroke 0.3s;
+}
+
+.ring-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.time-display {
+  font-family: var(--display);
+  font-size: clamp(4.5rem, 18vw, 7.5rem);
+  color: var(--text);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  transition: color 0.3s;
+  cursor: default;
+  user-select: none;
+}
+
+.time-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--text2);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-top: 0.25rem;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  justify-content: center;
+}
+
+.ctrl-btn {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.7rem 1.8rem;
+  border-radius: 2px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.ctrl-btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+  min-width: 120px;
+}
+
+.ctrl-btn.primary:hover { opacity: 0.85; }
+.ctrl-btn:not(.primary):hover { border-color: var(--text2); color: var(--text); }
+
+/* Status bar */
+.status-bar {
+  width: 100%;
+  max-width: 340px;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.status-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.5s linear, background 0.3s;
+  width: 100%;
+}
+
+/* Alert banners */
+.alert-banner {
+  width: 100%;
+  max-width: 340px;
+  padding: 0.6rem 1rem;
+  border-radius: 2px;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+  background: var(--warn);
+  color: var(--bg);
+  pointer-events: none;
+}
+
+.alert-banner.show { opacity: 1; }
+.alert-banner.danger { background: var(--danger); animation: flash 0.6s ease-in-out infinite alternate; }
+
+@keyframes flash {
+  from { opacity: 1; }
+  to   { opacity: 0.6; }
+}
+
+/* ── Right panel ── */
+.right-col { display: flex; flex-direction: column; gap: 1.25rem; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.panel-header {
+  padding: 0.75rem 1.125rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-title {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--text2);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.panel-body { padding: 1.125rem; }
+
+/* Slide pacing */
+.slide-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.slide-row label {
+  font-size: 0.8rem;
+  color: var(--text2);
+  white-space: nowrap;
+}
+
+.slide-input {
+  background: transparent;
+  border: 1px solid var(--border2);
+  border-radius: 2px;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  font-weight: 700;
+  width: 56px;
+  text-align: center;
+  outline: none;
+  padding: 0.3rem 0.4rem;
+  transition: border-color 0.15s;
+}
+
+.slide-input:focus { border-color: var(--accent); }
+
+.pace-summary {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text);
+  margin-bottom: 1.25rem;
+  line-height: 1.6;
+  padding: 0.75rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+}
+
+.pace-summary span { color: var(--accent); }
+
+/* Pace timeline */
+.pace-timeline { display: flex; flex-direction: column; gap: 0.4rem; }
+
+.pace-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 2px;
+  border-left: 2px solid var(--border2);
+  transition: border-color 0.2s, background 0.2s;
+  cursor: default;
+}
+
+.pace-item.current-slide {
+  border-left-color: var(--accent);
+  background: rgba(232,240,0,0.04);
+}
+
+.pace-time {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text2);
+  min-width: 36px;
+}
+
+.pace-slide-num {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--text3);
+  min-width: 52px;
+}
+
+.pace-bar-wrap {
+  flex: 1;
+  height: 2px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.pace-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  opacity: 0.5;
+  border-radius: 2px;
+}
+
+/* Tip card */
+.tip-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.tip-item {
+  display: flex;
+  gap: 0.6rem;
+  font-size: 0.78rem;
+  color: var(--text2);
+  line-height: 1.45;
+}
+
+.tip-icon {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--accent);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+/* CTA */
+.cta-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--accent);
+  border-radius: 4px;
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.cta-block p {
+  font-size: 0.78rem;
+  color: var(--text2);
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.cta-btn {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bg);
+  background: var(--accent);
+  padding: 0.55rem 1.25rem;
+  border-radius: 2px;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.cta-btn:hover { opacity: 0.85; }
+
+.tools-row {
+  display: flex;
+  justify-content: center;
+  gap: 1.25rem;
+  margin-top: 0.75rem;
+}
+
+.tools-row a {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  color: var(--text3);
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  transition: color 0.15s;
+}
+
+.tools-row a:hover { color: var(--text2); }
+
+/* Footer */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.footer-links { display: flex; gap: 1.5rem; }
+.footer-links a {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  color: var(--text3);
+  text-decoration: none;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color 0.15s;
+}
+.footer-links a:hover { color: var(--accent); }
+.footer-copy { font-family: var(--mono); font-size: 0.55rem; color: var(--text3); }
+
+/* Fullscreen mode */
+body.fullscreen-mode header,
+body.fullscreen-mode footer,
+body.fullscreen-mode .right-col {
+  display: none;
+}
+
+body.fullscreen-mode .main {
+  grid-template-columns: 1fr;
+  max-width: 100%;
+  padding: 3rem 2rem;
+  justify-items: center;
+}
+
+body.fullscreen-mode .timer-section {
+  width: 100%;
+  max-width: 600px;
+}
+
+body.fullscreen-mode .ring-wrap {
+  width: min(480px, 85vw);
+  height: min(480px, 85vw);
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="https://devkoan.substack.com" class="logo">devkoan</a>
+  <div class="header-right">
+    <nav class="nav-links">
+      <a href="https://devkoan.github.io/devkoan-tools/">All Tools</a>
+      <a href="https://devkoan.github.io/pricing-calculator/">Pricing Calculator</a>
+      <a href="https://devkoan.github.io/privacy-policy-generator/">Privacy Policy</a>
+    </nav>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- Left: timer -->
+  <div class="timer-section">
+
+    <!-- Duration -->
+    <div class="duration-row">
+      <button class="dur-btn active" data-mins="5" onclick="setDuration(5, this)">5 min</button>
+      <button class="dur-btn" data-mins="7" onclick="setDuration(7, this)">7 min</button>
+      <button class="dur-btn" data-mins="10" onclick="setDuration(10, this)">10 min</button>
+      <button class="dur-btn" data-mins="15" onclick="setDuration(15, this)">15 min</button>
+      <div class="custom-wrap">
+        <input class="custom-input" type="number" id="custom-mins" min="1" max="60" placeholder="—" oninput="setCustomDuration(this)">
+        <span class="custom-lbl">min</span>
+      </div>
+    </div>
+
+    <!-- Ring -->
+    <div class="ring-wrap">
+      <svg class="ring-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <circle class="ring-track" cx="100" cy="100" r="88"/>
+        <circle class="ring-progress" id="ring" cx="100" cy="100" r="88"
+          stroke-dasharray="553"
+          stroke-dashoffset="0"/>
+      </svg>
+      <div class="ring-face">
+        <div class="time-display" id="time-display">5:00</div>
+        <div class="time-label" id="time-label">ready</div>
+      </div>
+    </div>
+
+    <!-- Status bar -->
+    <div class="status-bar">
+      <div class="status-fill" id="status-fill"></div>
+    </div>
+
+    <!-- Alert -->
+    <div class="alert-banner" id="alert-banner">1 minute left</div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button class="ctrl-btn primary" id="start-btn" onclick="toggleTimer()">Start</button>
+      <button class="ctrl-btn" onclick="resetTimer()">Reset</button>
+      <button class="ctrl-btn" onclick="toggleFullscreen()" title="Focus mode">⛶ Focus</button>
+    </div>
+
+  </div>
+
+  <!-- Right: guide -->
+  <div class="right-col">
+
+    <!-- Slide pacing -->
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Slide Pacing Guide</span></div>
+      <div class="panel-body">
+        <div class="slide-row">
+          <label>Number of slides</label>
+          <input class="slide-input" type="number" id="slide-count" value="10" min="1" max="60" oninput="buildPaceGuide()">
+        </div>
+        <div class="pace-summary" id="pace-summary">—</div>
+        <div class="pace-timeline" id="pace-timeline"></div>
+      </div>
+    </div>
+
+    <!-- Tips -->
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Lightning Talk Tips</span></div>
+      <div class="panel-body">
+        <div class="tip-list">
+          <div class="tip-item">
+            <span class="tip-icon">01</span>
+            <span>One idea per talk. Not one topic — one idea. If you can't write it in a single sentence, it's still two talks.</span>
+          </div>
+          <div class="tip-item">
+            <span class="tip-icon">02</span>
+            <span>The first 30 seconds decides everything. Don't warm up — start with the thing that surprised you.</span>
+          </div>
+          <div class="tip-item">
+            <span class="tip-icon">03</span>
+            <span>Slides are cue cards for the audience, not for you. If your slide has bullet points, you're writing a document, not giving a talk.</span>
+          </div>
+          <div class="tip-item">
+            <span class="tip-icon">04</span>
+            <span>When the timer hits zero, stop talking. Nothing damages a lightning talk more than running over.</span>
+          </div>
+          <div class="tip-item">
+            <span class="tip-icon">05</span>
+            <span>End with something actionable. "Try this" or "Search for this" — give them one thing to do when they leave.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-block">
+      <p>devkoan covers building, shipping, and talking about code — for indie developers who do all three solo.</p>
+      <a href="https://devkoan.substack.com" class="cta-btn" target="_blank" rel="noopener">Read devkoan →</a>
+      <div class="tools-row">
+        <a href="https://devkoan.github.io/pricing-calculator/">Pricing Calculator</a>
+        <a href="https://devkoan.github.io/revenue-estimator/">Revenue Estimator</a>
+        <a href="https://devkoan.github.io/privacy-policy-generator/">Privacy Policy</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="footer-links">
+    <a href="https://devkoan.substack.com" target="_blank">Newsletter</a>
+    <a href="https://devkoan.gumroad.com" target="_blank">Products</a>
+    <a href="https://devkoan.github.io/devkoan-tools/">All Tools</a>
+  </div>
+  <span class="footer-copy">devkoan © 2026 · Free, no account needed</span>
+</footer>
+
+<script>
+/* ── State ── */
+let totalSecs  = 5 * 60;
+let remaining  = totalSecs;
+let running    = false;
+let interval   = null;
+let alerted60  = false;
+let alerted30  = false;
+let alertedEnd = false;
+
+const CIRCUMFERENCE = 2 * Math.PI * 88; // 552.9
+
+/* ── DOM refs ── */
+const display    = document.getElementById('time-display');
+const timeLabel  = document.getElementById('time-label');
+const ring       = document.getElementById('ring');
+const statusFill = document.getElementById('status-fill');
+const startBtn   = document.getElementById('start-btn');
+const alertBanner= document.getElementById('alert-banner');
+
+/* ── Duration ── */
+function setDuration(mins, el) {
+  if (running) return;
+  document.querySelectorAll('.dur-btn').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('custom-mins').value = '';
+  totalSecs = mins * 60;
+  remaining = totalSecs;
+  alerted60 = alerted30 = alertedEnd = false;
+  updateDisplay();
+  buildPaceGuide();
+}
+
+function setCustomDuration(input) {
+  if (running) return;
+  const val = parseInt(input.value);
+  if (!val || val < 1) return;
+  document.querySelectorAll('.dur-btn').forEach(b => b.classList.remove('active'));
+  totalSecs = val * 60;
+  remaining = totalSecs;
+  alerted60 = alerted30 = alertedEnd = false;
+  updateDisplay();
+  buildPaceGuide();
+}
+
+/* ── Timer ── */
+function toggleTimer() {
+  if (!running) {
+    if (remaining <= 0) resetTimer();
+    running = true;
+    startBtn.textContent = 'Pause';
+    timeLabel.textContent = 'running';
+    interval = setInterval(tick, 1000);
+  } else {
+    running = false;
+    startBtn.textContent = 'Resume';
+    timeLabel.textContent = 'paused';
+    clearInterval(interval);
+  }
+}
+
+function resetTimer() {
+  running = false;
+  clearInterval(interval);
+  remaining = totalSecs;
+  alerted60 = alerted30 = alertedEnd = false;
+  startBtn.textContent = 'Start';
+  timeLabel.textContent = 'ready';
+  alertBanner.className = 'alert-banner';
+  display.style.color = '';
+  ring.style.stroke = 'var(--accent)';
+  statusFill.style.background = 'var(--accent)';
+  updateDisplay();
+  updateSlideHighlight();
+}
+
+function tick() {
+  if (remaining <= 0) {
+    finish();
+    return;
+  }
+  remaining--;
+  updateDisplay();
+  checkAlerts();
+  updateSlideHighlight();
+}
+
+function finish() {
+  running = false;
+  clearInterval(interval);
+  remaining = 0;
+  startBtn.textContent = 'Start';
+  timeLabel.textContent = 'time\'s up';
+  display.style.color = 'var(--danger)';
+  ring.style.stroke = 'var(--danger)';
+  statusFill.style.background = 'var(--danger)';
+  alertBanner.textContent = "Time's up!";
+  alertBanner.className = 'alert-banner danger show';
+  updateDisplay();
+  beep(880, 0.3, 0.5);
+  setTimeout(() => beep(880, 0.3, 0.5), 600);
+  setTimeout(() => beep(660, 0.5, 0.8), 1200);
+}
+
+function checkAlerts() {
+  if (!alerted60 && remaining === 60) {
+    alerted60 = true;
+    showAlert('1 minute left', false);
+    ring.style.stroke = 'var(--warn)';
+    statusFill.style.background = 'var(--warn)';
+    beep(660, 0.15, 0.3);
+  }
+  if (!alerted30 && remaining === 30) {
+    alerted30 = true;
+    showAlert('30 seconds', true);
+    ring.style.stroke = 'var(--danger)';
+    statusFill.style.background = 'var(--danger)';
+    display.style.color = 'var(--danger)';
+    beep(880, 0.15, 0.25);
+    setTimeout(() => beep(880, 0.15, 0.25), 350);
+  }
+}
+
+function showAlert(msg, isDanger) {
+  alertBanner.textContent = msg;
+  alertBanner.className = 'alert-banner show' + (isDanger ? ' danger' : '');
+}
+
+/* ── Display ── */
+function updateDisplay() {
+  const m = Math.floor(remaining / 60);
+  const s = remaining % 60;
+  display.textContent = m + ':' + String(s).padStart(2, '0');
+
+  const pct = remaining / totalSecs;
+  const offset = CIRCUMFERENCE * (1 - pct);
+  ring.style.strokeDashoffset = offset;
+  statusFill.style.width = (pct * 100) + '%';
+}
+
+/* ── Audio ── */
+let audioCtx = null;
+function beep(freq, vol, dur) {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc  = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.frequency.value = freq;
+    osc.type = 'sine';
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+    osc.start(audioCtx.currentTime);
+    osc.stop(audioCtx.currentTime + dur);
+  } catch(e) {}
+}
+
+/* ── Fullscreen ── */
+function toggleFullscreen() {
+  document.body.classList.toggle('fullscreen-mode');
+}
+
+/* ── Slide pacing guide ── */
+function buildPaceGuide() {
+  const slides    = parseInt(document.getElementById('slide-count').value) || 10;
+  const totalMins = totalSecs / 60;
+  const secsPerSlide = totalSecs / slides;
+  const minsPerSlide = secsPerSlide / 60;
+
+  const summary = document.getElementById('pace-summary');
+  const timeline = document.getElementById('pace-timeline');
+
+  if (minsPerSlide < 0.25) {
+    summary.innerHTML = `<span>⚠</span> ${slides} slides in ${totalMins} min = <span>${secsPerSlide.toFixed(1)}s</span>/slide. That's too fast. Aim for under 30 slides.`;
+  } else {
+    summary.innerHTML = `<span>${slides}</span> slides · <span>${totalMins} min</span> · <span>${minsPerSlide >= 1 ? minsPerSlide.toFixed(1) + ' min' : Math.round(secsPerSlide) + 's'}</span> per slide`;
+  }
+
+  timeline.innerHTML = '';
+  for (let i = 0; i < slides; i++) {
+    const startSec = Math.round(i * secsPerSlide);
+    const sm = Math.floor(startSec / 60);
+    const ss = startSec % 60;
+    const timeStr = sm + ':' + String(ss).padStart(2,'0');
+    const pct = Math.round((i / slides) * 100);
+
+    const div = document.createElement('div');
+    div.className = 'pace-item';
+    div.id = 'pace-' + i;
+    div.innerHTML = `
+      <span class="pace-time">${timeStr}</span>
+      <span class="pace-slide-num">Slide ${i+1}/${slides}</span>
+      <div class="pace-bar-wrap">
+        <div class="pace-bar-fill" style="width:${(1/(slides))*100}%"></div>
+      </div>
+    `;
+    timeline.appendChild(div);
+  }
+
+  updateSlideHighlight();
+}
+
+function updateSlideHighlight() {
+  const slides = parseInt(document.getElementById('slide-count').value) || 10;
+  const elapsed = totalSecs - remaining;
+  const secsPerSlide = totalSecs / slides;
+  const currentSlide = Math.min(Math.floor(elapsed / secsPerSlide), slides - 1);
+
+  document.querySelectorAll('.pace-item').forEach((el, i) => {
+    el.classList.toggle('current-slide', running && i === currentSlide);
+  });
+
+  if (running) {
+    const el = document.getElementById('pace-' + currentSlide);
+    if (el) el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  }
+}
+
+/* ── Init ── */
+ring.style.strokeDasharray  = CIRCUMFERENCE;
+ring.style.strokeDashoffset = 0;
+updateDisplay();
+buildPaceGuide();
+</script>
+</body>
+</html>
